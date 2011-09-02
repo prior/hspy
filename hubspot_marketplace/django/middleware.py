@@ -28,7 +28,7 @@ If you want to easily toggle request validation on and off you can do so from th
         if not auth_settings.get('ACTIVATE', True):
             logger.info('HubSpot Marketplace Request Authentication Deactivated')
             raise MiddlewareNotUsed
-        self.secret = auth_settings.get('SECRET_KEY', None) or ''
+        self.secret = auth_settings.get('SECRET_KEY', None)
         logger.info('HubSpot Marketplace Request Authentication Activated')
         if not self.secret:
             raise MissingSecretError
@@ -40,7 +40,7 @@ If you want to easily toggle request validation on and off you can do so from th
             return HttpResponse(status=401)
 
     def is_request_authentic(self, signature):
-        signature = str(signature) or ''  # convert from unicode
+        signature = str(signature)  # convert from unicode
         digest, payload = [b64_url_decode(item) for item in (signature+'.').split('.')[0:2]]
         return digest and payload and digest == hmac.new(self.secret, payload, hashlib.sha1).digest()
 
