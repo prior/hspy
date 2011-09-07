@@ -9,6 +9,26 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def marketplace(function=None):
+    def _dec(view_func):
+        def _view(request, *args, **kwargs):
+            authenticate = getattr(settings, 'HUBSPOT_MARKETPLACE', {}).get('AUTH', {}).get('ACTIVATE', True)
+            if authenticate and not (request.marketplace or {}).get('authenticated', False):
+                logger.error("\nThis request did not have a proper HubSpot Marketplace authentication signature!\n  This particular view was decorated so as to expect a valid HubSpot Marketplace signature, however, the signature on this request was either missing, malformed, or wrong.  Perhaps you incorrectly decorated this view as a marketplace view?  Or, perhaps this request did not originate from HubSpot!?  Returning a 401 for this request.")
+                return HttpResponse(status=401)
+            else:
+                return view_func(request, *args, **kwargs)
+        _view.__name__ = view_func.__name__
+        _view.__dict__ = view_func.__dict__
+        _view.__doc__ = view_func.__doc__
+        return _view
+    
+    if function is None:
+        return _dec
+    else:
+        return _dec(function)
+
+
 class AuthMiddleware(object):
     """
 Use this to ensure requests are coming from HubSpot and that they are intended for your app.
@@ -34,10 +54,22 @@ If you want to easily toggle request validation on and off you can do so from th
             raise MissingSecretError
 
     def process_request(self, request):
+        request.marketplace = {'authenticated': False}
         signature = request.REQUEST.get('hubspot.marketplace.signature', None) or ''
-        if not self.is_request_authentic(signature):
-            logger.error("\n  This request did not have a proper HubSpot Marketplace authentication signature!\n  It was either missing, malformed, or wrong.\n  Perhaps your SECRET_KEY is set to an incorrect value?\n  Or, perhaps this request did not originate from HubSpot!?\n  Returning a 401 for this request.")
-            return HttpResponse(status=401)
+        if self.is_request_authentic(signature):
+            #TODO: could make this more general and flexible as new things are added and maybe other things are removed, but would still like to force common capitalization/underscore rules
+            request.marketplace['authenticated'] = True
+            request.marketplace['caller'] = request.REQUEST.get('hubspot.marketplace.caller', None)
+            request.marketplace['portal_id'] = request.REQUEST.get('hubspot.marketplace.portal_id', None)
+            request.marketplace['app'] = {}
+            request.marketplace['app']['name'] = request.REQUEST.get('hubspot.marketplace.app.name', None)
+            request.marketplace['app']['callback_url'] = request.REQUEST.get('hubspot.marketplace.app.callbackUrl', None)
+            request.marketplace['app']['page_url'] = request.REQUEST.get('hubspot.marketplace.app.pageUrl', None)
+            request.marketplace['app']['canvas_url'] = request.REQUEST.get('hubspot.marketplace.app.canvasUrl', None)
+            request.marketplace['user'] = {'id': request.REQUEST.get('hubspot.marketplace.user_id', None)}
+            request.marketplace['user']['first_name'] = request.REQUEST.get('hubspot.marketplace.app.firstName', None)
+            request.marketplace['user']['last_name'] = request.REQUEST.get('hubspot.marketplace.app.lastName', None)
+            request.marketplace['user']['email'] = request.REQUEST.get('hubspot.marketplace.app.email', None)
 
     def is_request_authentic(self, signature):
         signature = str(signature)  # convert from unicode
