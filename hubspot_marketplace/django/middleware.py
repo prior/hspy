@@ -57,6 +57,10 @@ If you want to easily toggle request validation on and off you can do so from th
             raise MissingSecretError
 
     def process_request(self, request):
+        pprint.pprint(">> GET >>>>")
+        pprint.pprint(request.GET)
+        pprint.pprint(">> POST >>>>")
+        pprint.pprint(request.POST)
         request.marketplace = getattr(request, 'marketplace', {})
         request.marketplace['authenticated']= False
         signature = request.REQUEST.get('hubspot.marketplace.signature', None) or ''
@@ -145,6 +149,7 @@ class MockMiddleware(object):
         self.rebody = re.compile('<body>(.*?)</body>',re.DOTALL)
         self.relink = re.compile('<hs:link (.*?)/?>')
         self.retitle = re.compile('<hs:title(.*?)>(.*?)</hs:title>')
+        self.reform = re.compile('(<form\s.*?)action="(/.*?)"')
 
         self.wrapper = open(os.path.join(os.path.dirname(__file__),'wrapper.html')).read()
 
@@ -188,12 +193,14 @@ class MockMiddleware(object):
                     head += "\n<link %s />"%link
                 innards = self.relink.sub('',innards)
                 innards = self.retitle.sub('',innards)
+                innards = self.reform.sub(r'\1action="/market/%s/canvas/%s\2"'%(request.marketplace['portal']['id'],self.slug), innards)
                 content = self.wrapper
                 content = content.replace('[[HEAD_CONTENTS]]',head)
                 content = content.replace('[[BODY_CONTENTS]]',innards)
                 content = content.replace('[[BOTTOM_BODY_CONTENTS]]','')
                 response.content = content
         return response
+
 
 class MissingSlugError(NameError):
     """
@@ -217,7 +224,6 @@ Or, if you plan to never use it, then you need to remove
     def __init__(self, *args):
         NameError.__init__(self, self.__doc__)
         
-
 
 
 def base64_url_decode_for_real(encoded_s):
