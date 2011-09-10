@@ -57,10 +57,6 @@ If you want to easily toggle request validation on and off you can do so from th
             raise MissingSecretError
 
     def process_request(self, request):
-        pprint.pprint(">> GET >>>>")
-        pprint.pprint(request.GET)
-        pprint.pprint(">> POST >>>>")
-        pprint.pprint(request.POST)
         request.marketplace = getattr(request, 'marketplace', {})
         request.marketplace['authenticated']= False
         signature = request.REQUEST.get('hubspot.marketplace.signature', None) or ''
@@ -148,8 +144,10 @@ class MockMiddleware(object):
         
         self.rebody = re.compile('<body>(.*?)</body>',re.DOTALL)
         self.relink = re.compile('<hs:link (.*?)/?>')
+        self.rescript = re.compile('<hs:script (.*?)/?>')
         self.retitle = re.compile('<hs:title(.*?)>(.*?)</hs:title>')
         self.reform = re.compile('(<form\s.*?)action="(/.*?)"')
+        self.reanchor = re.compile('(<a\s.*?)href="(/.*?)"')
 
         self.wrapper = open(os.path.join(os.path.dirname(__file__),'wrapper.html')).read()
 
@@ -191,13 +189,17 @@ class MockMiddleware(object):
                 head = ''
                 for link in self.relink.findall(innards):
                     head += "\n<link %s />"%link
+                bottom = ''
+                for script in self.rescript.findall(innards):
+                    bottom += "\n<script %s />"%script
                 innards = self.relink.sub('',innards)
                 innards = self.retitle.sub('',innards)
                 innards = self.reform.sub(r'\1action="/market/%s/canvas/%s\2"'%(request.marketplace['portal']['id'],self.slug), innards)
+                innards = self.reanchor.sub(r'\1href="/market/%s/canvas/%s\2"'%(request.marketplace['portal']['id'],self.slug), innards)
                 content = self.wrapper
                 content = content.replace('[[HEAD_CONTENTS]]',head)
                 content = content.replace('[[BODY_CONTENTS]]',innards)
-                content = content.replace('[[BOTTOM_BODY_CONTENTS]]','')
+                content = content.replace('[[BOTTOM_BODY_CONTENTS]]',bottom)
                 response.content = content
         return response
 
