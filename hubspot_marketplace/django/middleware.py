@@ -64,13 +64,13 @@ If you want to easily toggle request validation on and off you can do so from th
             #TODO: could make this more general and flexible as new things are added and maybe other things are removed, but would still like to force common capitalization/underscore rules
             request.marketplace['authenticated'] = True
             request.marketplace['caller'] = request.REQUEST.get('hubspot.marketplace.caller', None)
-            request.marketplace['portal'] = {'id': request.REQUEST.get('hubspot.marketplace.portal_id', None)}
+            request.marketplace['portal'] = {'id': int(request.REQUEST.get('hubspot.marketplace.portal_id', None))}
             request.marketplace['app'] = {}
             request.marketplace['app']['name'] = request.REQUEST.get('hubspot.marketplace.app.name', None)
-            request.marketplace['app']['callback_url'] = request.REQUEST.get('hubspot.marketplace.app.callbackUrl', None)
-            request.marketplace['app']['page_url'] = request.REQUEST.get('hubspot.marketplace.app.pageUrl', None)
-            request.marketplace['app']['canvas_url'] = request.REQUEST.get('hubspot.marketplace.app.canvasUrl', None)
-            request.marketplace['user'] = {'id': request.REQUEST.get('hubspot.marketplace.user_id', None)}
+            request.marketplace['app']['my_base_url'] = request.REQUEST.get('hubspot.marketplace.app.callbackUrl', None)
+            request.marketplace['app']['my_url'] = request.REQUEST.get('hubspot.marketplace.app.pageUrl', None)
+            request.marketplace['app']['base_url'] = request.REQUEST.get('hubspot.marketplace.app.canvasUrl', None)
+            request.marketplace['user'] = {'id': int(request.REQUEST.get('hubspot.marketplace.user_id', None))}
             request.marketplace['user']['first_name'] = request.REQUEST.get('hubspot.marketplace.app.firstName', None)
             request.marketplace['user']['last_name'] = request.REQUEST.get('hubspot.marketplace.app.lastName', None)
             request.marketplace['user']['email'] = request.REQUEST.get('hubspot.marketplace.app.email', None)
@@ -142,12 +142,12 @@ class MockMiddleware(object):
         for k in MOCK_SETTINGS_DEFAULTS['USER']:
             self.mock_settings.setdefault(k, MOCK_SETTINGS_DEFAULTS['USER'][k])
         
-        self.rebody = re.compile('<body>(.*?)</body>',re.DOTALL)
-        self.relink = re.compile('<hs:link (.*?)/?>')
-        self.rescript = re.compile('<hs:script (.*?)/?>')
-        self.retitle = re.compile('<hs:title(.*?)>(.*?)</hs:title>')
-        self.reform = re.compile('(<form\s.*?)action="(/.*?)"')
-        self.reanchor = re.compile('(<a\s.*?)href="(/.*?)"')
+        self.rebody = re.compile(r'<body>(.*?)</body>',re.DOTALL)
+        self.relink = re.compile(r'<hs:link (.*?)/?>')
+        self.rescript = re.compile(r'<hs:script (.*?)></hs:script>')
+        self.retitle = re.compile(r'<hs:title(.*?)>(.*?)</hs:title>')
+        self.reform = re.compile(r'(<form\s.*?)action="(/.*?)"')
+        self.reanchor = re.compile(r'(<a\s.*?)href="(/.*?)"')
 
         self.wrapper = open(os.path.join(os.path.dirname(__file__),'wrapper.html')).read()
 
@@ -164,7 +164,7 @@ class MockMiddleware(object):
         m = self.prefix_path_re.match(request.path)
         if m:
             request.path = self.prefix_path_re.sub('', request.path, 1)
-            portal_id = m.group(1)
+            portal_id = int(m.group(1))
             request.path_info = self.prefix_path_re.sub('', request.path_info, 1)
 
             #if we're here, then we need to be mocking out a marketplace request
@@ -174,7 +174,7 @@ class MockMiddleware(object):
             h.appendlist('hubspot.marketplace.app.name', self.mock_settings['APP']['NAME'])
             h.appendlist('hubspot.marketplace.app.callbackUrl', self.mock_settings['APP']['CALLBACK_URL'])
             h.appendlist('hubspot.marketplace.app.pageUrl', "TODO")
-            h.appendlist('hubspot.marketplace.app.canvasUrl', "TODO")
+            h.appendlist('hubspot.marketplace.app.canvasUrl', "http://%s/market/%s/canvas/%s" % (request.get_host(),str(portal_id),self.slug))
             if self.signature:
                 h.appendlist('hubspot.marketplace.signature', self.signature)
 
@@ -191,9 +191,10 @@ class MockMiddleware(object):
                     head += "\n<link %s />"%link
                 bottom = ''
                 for script in self.rescript.findall(innards):
-                    bottom += "\n<script %s />"%script
+                    bottom += "\n<script %s></script>"%script
                 innards = self.relink.sub('',innards)
                 innards = self.retitle.sub('',innards)
+                innards = self.rescript.sub('',innards)
                 innards = self.reform.sub(r'\1action="/market/%s/canvas/%s\2"'%(request.marketplace['portal']['id'],self.slug), innards)
                 innards = self.reanchor.sub(r'\1href="/market/%s/canvas/%s\2"'%(request.marketplace['portal']['id'],self.slug), innards)
                 content = self.wrapper
@@ -211,10 +212,10 @@ HubSpot Marketplace Mock Canvas Slug hasn't been defined!
 If you intend to use the MockCanvasMiddleware to aide your local development,
 then you need to specify your slug in your settings:
     HUBSPOT_MARKETPLACE = { 
-        'MOCK': { 'SLUG': 'your-hubspot-marketplace-app-slug' } 
+        'MOCK': { 'SLUG': 'your-hubspot-marketplace-app-slug' }
     }
 
-Or you can temporarily turn off the mocking middleware by deactivating this 
+Or you can temporarily turn off the mocking middleware by deactivating this
 middleware in your settings:
     HUBSPOT_MARKETPLACE = { 
         'MOCK': { 'ACTIVATE': False } 
