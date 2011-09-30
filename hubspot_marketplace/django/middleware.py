@@ -5,18 +5,21 @@ import base64
 import hashlib
 import hmac
 import re
-import pprint
 import os
 
 import logging
 logger = logging.getLogger(__name__)
 
 
+# TODO: clean up this documentation
+# this library forces you to do authentication to get at any of the variables -- a mock middleware will mock things appropriately however so that this will work
+
+
 def marketplace(function=None):
     def _dec(view_func):
         def _view(request, *args, **kwargs):
             authenticate = getattr(settings, 'HUBSPOT_MARKETPLACE', {}).get('AUTH', {}).get('ACTIVATE', True)
-            if authenticate and not (request.marketplace or {}).get('authenticated', False):
+            if authenticate and not getattr(request, 'marketplace', None):
                 logger.error("\nThis request did not have a proper HubSpot Marketplace authentication signature!\n  This particular view was decorated so as to expect a valid HubSpot Marketplace signature, however, the signature on this request was either missing, malformed, or wrong.  Perhaps you incorrectly decorated this view as a marketplace view?  Or, perhaps this request did not originate from HubSpot!?  Returning a 401 for this request.")
                 return HttpResponse(status=401)
             else:
@@ -30,6 +33,34 @@ def marketplace(function=None):
         return _dec
     else:
         return _dec(function)
+
+
+class MarketPlace(object):
+    EXTRAS = { # just some duplicates to keep things conventional and memorable
+        'portal_id': 'hub_id',
+        'app_pageUrl': 'app_url',
+        'app_callbackUrl': 'app_base_url',
+        'app_canvasUrl': 'web_base_url',
+        'user_firstName': 'user_first_name',
+        'user_lastName': 'user_last_name'
+    }
+
+    def __init__(self, request):
+        self.process(request)
+
+    def process(self, request):
+        for k in request.REQUEST:
+            if k.startswith('hubspot.marketplace.'):
+                attr = '_'.join(k.split('.')[2:])
+                val = request.REQUEST.get(k)
+                if attr.endswith('_id'):
+                    val = long(val)
+                elif attr.startswith('is_'):
+                    val = val.lower()=='true'
+                setattr(self, attr, val)
+        for k in self.__class__.EXTRAS:
+            setattr(self,self.__class__.EXTRAS[k],getattr(self,k))
+
 
 
 class AuthMiddleware(object):
@@ -57,23 +88,9 @@ If you want to easily toggle request validation on and off you can do so from th
             raise MissingSecretError
 
     def process_request(self, request):
-        request.marketplace = getattr(request, 'marketplace', {})
-        request.marketplace['authenticated']= False
-        signature = request.REQUEST.get('hubspot.marketplace.signature', None) or ''
+        signature = request.REQUEST.get('hubspot.marketplace.signature', '').strip()
         if self.is_request_authentic(signature):
-            #TODO: could make this more general and flexible as new things are added and maybe other things are removed, but would still like to force common capitalization/underscore rules
-            request.marketplace['authenticated'] = True
-            request.marketplace['caller'] = request.REQUEST.get('hubspot.marketplace.caller', None)
-            request.marketplace['portal'] = {'id': int(request.REQUEST.get('hubspot.marketplace.portal_id', None))}
-            request.marketplace['app'] = {}
-            request.marketplace['app']['name'] = request.REQUEST.get('hubspot.marketplace.app.name', None)
-            request.marketplace['app']['my_base_url'] = request.REQUEST.get('hubspot.marketplace.app.callbackUrl', None)
-            request.marketplace['app']['my_url'] = request.REQUEST.get('hubspot.marketplace.app.pageUrl', None)
-            request.marketplace['app']['base_url'] = request.REQUEST.get('hubspot.marketplace.app.canvasUrl', None)
-            request.marketplace['user'] = {'id': int(request.REQUEST.get('hubspot.marketplace.user_id', None))}
-            request.marketplace['user']['first_name'] = request.REQUEST.get('hubspot.marketplace.app.firstName', None)
-            request.marketplace['user']['last_name'] = request.REQUEST.get('hubspot.marketplace.app.lastName', None)
-            request.marketplace['user']['email'] = request.REQUEST.get('hubspot.marketplace.app.email', None)
+            request.marketplace = MarketPlace(request)
 
     def is_request_authentic(self, signature):
         signature = str(signature)  # convert from unicode
@@ -170,6 +187,9 @@ class MockMiddleware(object):
             #if we're here, then we need to be mocking out a marketplace request
             h.appendlist('hubspot.marketplace.caller', self.mock_settings['CALLER'])
             h.appendlist('hubspot.marketplace.user_id', str(self.mock_settings['USER']['ID']))
+            h.appendlist('hubspot.marketplace.user.email', str(self.mock_settings['USER']['ID']))
+            h.appendlist('hubspot.marketplace.user.firstName', str(self.mock_settings['USER']['ID']))
+            h.appendlist('hubspot.marketplace.user.lastName', str(self.mock_settings['USER']['ID']))
             h.appendlist('hubspot.marketplace.portal_id', str(portal_id))
             h.appendlist('hubspot.marketplace.app.name', self.mock_settings['APP']['NAME'])
             h.appendlist('hubspot.marketplace.app.callbackUrl', self.mock_settings['APP']['CALLBACK_URL'])
@@ -177,13 +197,14 @@ class MockMiddleware(object):
             h.appendlist('hubspot.marketplace.app.canvasUrl', "http://%s/market/%s/canvas/%s" % (request.get_host(),str(portal_id),self.slug))
             if self.signature:
                 h.appendlist('hubspot.marketplace.signature', self.signature)
+            h.appendlist('hubspot.marketplace.is_mock', 'true')
 
-            request.marketplace = getattr(request, 'marketplace', {})
-            request.marketplace['mock']= True
+            #request.marketplace = getattr(request, 'marketplace', {})
+            #request.marketplace['mock']= True
 
 
     def process_response(self, request, response):
-        if request and request.marketplace and request.marketplace.get('mock',False) and response.status_code==200:
+        if request and getattr(request, 'marketplace',None) and request.marketplace.is_mock and response.status_code==200:
             if self.rebody.search(response.content):
                 innards = self.rebody.findall(response.content)[0]
                 head = ''
@@ -195,8 +216,8 @@ class MockMiddleware(object):
                 innards = self.relink.sub('',innards)
                 innards = self.retitle.sub('',innards)
                 innards = self.rescript.sub('',innards)
-                innards = self.reform.sub(r'\1action="/market/%s/canvas/%s\2"'%(request.marketplace['portal']['id'],self.slug), innards)
-                innards = self.reanchor.sub(r'\1href="/market/%s/canvas/%s\2"'%(request.marketplace['portal']['id'],self.slug), innards)
+                innards = self.reform.sub(r'\1action="/market/%s/canvas/%s\2"'%(request.marketplace.hub_id,self.slug), innards)
+                innards = self.reanchor.sub(r'\1href="/market/%s/canvas/%s\2"'%(request.marketplace.hub_id,self.slug), innards)
                 content = self.wrapper
                 content = content.replace('[[HEAD_CONTENTS]]',head)
                 content = content.replace('[[BODY_CONTENTS]]',innards)
