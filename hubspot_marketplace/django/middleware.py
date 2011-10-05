@@ -38,9 +38,9 @@ def marketplace(function=None):
 class MarketPlace(object):
     EXTRAS = { # just some duplicates to keep things conventional and memorable
         'portal_id': 'hub_id',
-        'app_pageUrl': 'app_url',
-        'app_callbackUrl': 'app_base_url',
-        'app_canvasUrl': 'web_base_url',
+        'app_pageUrl': 'local_url',
+        'app_callbackUrl': 'local_base_url',
+        'app_canvasUrl': 'base_url',
         'user_firstName': 'user_first_name',
         'user_lastName': 'user_last_name'
     }
