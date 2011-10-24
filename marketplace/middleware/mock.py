@@ -89,17 +89,17 @@ feel free to contribute to this effort.
         self.form_re = re.compile(r'(<form\s.*?)action="(/.*?)"')
         self.anchor_re = re.compile(r'(<a\s.*?)href="(/.*?)"')
 
-        path = os.path.join(os.path.dirname(__file__),'wrapper.html')
+        path = os.path.join(os.path.dirname(__file__),'mock.html')
         self.wrapper = open(path).read()
 
-        self.build_static_params()
+        self.build_static_params(mock)
 
         self.log.info('HubSpot Marketplace Mock Canvas Middleware Activated')
 
 
-    def build_static_params(self):
+    def build_static_params(self, mock):
         """
-        Builds the params in a very forgiving way.  Necessary for backwared
+        Builds the params in a very forgiving way.  Necessary for backward
         compatibility
         """
 
@@ -117,7 +117,7 @@ feel free to contribute to this effort.
         defaults = self.__class__.MOCK_SETTINGS_DEFAULTS
         for k,v in mapping.iteritems():
             val = None
-            for store in [self.mock, defaults]:
+            for store in [mock, defaults]:
                 if not val:
                     val = store.get(k) or store.get(v)
                     for l in [k,v]:
