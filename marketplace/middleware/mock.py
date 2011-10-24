@@ -7,7 +7,7 @@ import hmac
 import re
 import os
 
-import logger
+from marketplace import logger
 
 
 class MockMiddleware(object):
@@ -66,7 +66,7 @@ feel free to contribute to this effort.
         mock = getattr(settings, 'HUBSPOT_MARKETPLACE_MOCK', {})
         auth = getattr(settings, 'HUBSPOT_MARKETPLACE_AUTH', {})
         secret = auth.get('secret_key')
-        self.log = logger.get_log('MockMiddleware')
+        self.log = logger.get_log(__name__)
         if not mock or mock and not secret:
             self.log.info('MockMiddleware has been turned off for all'
                     'requests')
@@ -77,11 +77,11 @@ feel free to contribute to this effort.
                 [self.base64_url_encode_for_real(s) 
                     for s in [digest, payload]])
 
-        slug = mock.get('slug')
-        if not slug:
+        self.slug = mock.get('slug')
+        if not self.slug:
             raise KeyError("Missing slug definition in MockMiddleware")
 
-        self.prefix_path_re = re.compile('/market/(\d+)/canvas/%s'%slug)
+        self.prefix_path_re = re.compile('/market/(\d+)/canvas/%s'%self.slug)
         self.body_re = re.compile(r'<body>(.*?)</body>',re.DOTALL)
         self.link_re = re.compile(r'<hs:link (.*?)/?>')
         self.script_re = re.compile(r'<hs:script (.*?)></hs:script>')
@@ -150,7 +150,7 @@ feel free to contribute to this effort.
                 (request.get_host(), hub_id, self.slug))
         params.appendlist('hubspot.marketplace.app.pageUrl', str(request.path))
 
-        setattr(request, request.method, QueryDict(params))
+        setattr(request, request.method, params)
 
         request.path = self.prefix_path_re.sub('', request.path, 1)
         request.path_info = self.prefix_path_re.sub('', request.path_info, 1)
@@ -158,7 +158,7 @@ feel free to contribute to this effort.
 
     def process_response(self, request, response):
         marketplace = request and getattr(request, 'marketplace', None)
-        if marketplace.is_mock and response.status_code==200:
+        if marketplace and marketplace.is_mock and response.status_code==200:
             if self.body_re.search(response.content):
                 innards = self.body_re.findall(response.content)[0]
                 head = ''
@@ -182,7 +182,7 @@ feel free to contribute to this effort.
         return response
 
 
-    def base64_url_encode_for_real(decoded_s):
+    def base64_url_encode_for_real(self, decoded_s):
         """
         base64 library decided to leave '=' chars still kicking around, and was
         still bold enough to call their method 'urlsafe' -- okaaaaay...  This
