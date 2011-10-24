@@ -2,13 +2,13 @@
 from distutils.core import setup
 
 setup(
-    name='hubspot-marketplace-django',
+    name='hspy',
     version='1.0',
-    description='Python WebEx Api Wrapper',
+    description='HubSpot Marketplace Python Django Goodness',
     author='Michael Prior',
     author_email='prior@cracklabs.com',
     url='',
-    packages=['hubspot_marketplace.django'],
+    packages=['marketplace'],
     install_requires=[
         'nose==1.1.2',
         'unittest2==0.5.1'
