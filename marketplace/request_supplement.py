@@ -12,8 +12,6 @@ class RequestSupplement(object):
         'app_pageUrl': 'local_url',
         'app_callbackUrl': 'local_base_url',
         'app_canvasUrl': 'base_url',
-        'user_firstName': 'user_first_name',
-        'user_lastName': 'user_last_name'
     }
 
     def __init__(self, request):
