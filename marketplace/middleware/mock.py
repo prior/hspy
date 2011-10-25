@@ -152,8 +152,13 @@ feel free to contribute to this effort.
 
         setattr(request, request.method, params)
 
-        request.path = self.prefix_path_re.sub('', request.path, 1)
-        request.path_info = self.prefix_path_re.sub('', request.path_info, 1)
+        callback_url = self.base['hubspot.marketplace.app.callbackUrl']
+        callback_path = (callback_url.split('//',1)+[''])[1] or callback_url
+        callback_prefix = (callback_path.split('/',1)+[''])[1]
+        callback_prefix = callback_prefix and '/%s'%callback_prefix
+
+        request.path = self.prefix_path_re.sub(callback_prefix, request.path, 1)
+        request.path_info = self.prefix_path_re.sub(callback_prefix, request.path_info, 1)
 
 
     def process_response(self, request, response):
