@@ -24,7 +24,7 @@ Url" into something useful.
         if marketplace and response.status_code==200:
             print request.GET
             response.content = self.anchor_re.sub(r'\1href="%s\2"' %
-                    marketplace.base_url, response.content)
+                    marketplace.base_url[0:-1], response.content)
         return response
 
 

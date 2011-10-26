@@ -149,7 +149,7 @@ feel free to contribute to this effort.
             params.appendlist(k,v)
         params.appendlist('hubspot.marketplace.portal_id', str(hub_id))
         params.appendlist('hubspot.marketplace.app.canvasUrl', 
-                "http://%s/market/%s/canvas/%s" % 
+                "http://%s/market/%s/canvas/%s/" % 
                 (request.get_host(), hub_id, self.slug))
         params.appendlist('hubspot.marketplace.app.pageUrl', str(request.path))
 
