@@ -87,7 +87,10 @@ feel free to contribute to this effort.
         self.script_re = re.compile(r'<hs:script (.*?)></hs:script>')
         self.title_re = re.compile(r'<hs:title(.*?)>(.*?)</hs:title>')
         self.form_re = re.compile(r'(<form\s.*?)action="(/.*?)"')
-        self.anchor_re = re.compile(r'(<a\s.*?)href="(/.*?)"')
+
+# keeping this kicking around cuz we'll likely uncomment when marketplace fixes
+# how this works
+#        self.anchor_re = re.compile(r'(<a\s.*?)href="(/.*?)"')
 
         path = os.path.join(os.path.dirname(__file__),'mock.html')
         self.wrapper = open(path).read()
@@ -177,8 +180,12 @@ feel free to contribute to this effort.
                 innards = self.script_re.sub('',innards)
                 innards = self.form_re.sub(r'\1action="/market/%s/canvas/%s\2"' %
                         (marketplace.hub_id,self.slug), innards)
-                innards = self.anchor_re.sub(r'\1href="/market/%s/canvas/%s\2"' %
-                        (marketplace.hub_id,self.slug), innards)
+
+# keeping this kicking around cuz we'll likely uncomment when marketplace fixes
+# how this works
+                #innards = self.anchor_re.sub(r'\1href="/market/%s/canvas/%s\2"' %
+                        #(marketplace.hub_id,self.slug), innards)
+
                 content = self.wrapper
                 content = content.replace('[[HEAD_CONTENTS]]',head)
                 content = content.replace('[[BODY_CONTENTS]]',innards)
