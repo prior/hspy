@@ -1,0 +1,23 @@
+/* Modified CSS RESET for Marketplace Django Error Display */
+div.hsmpdjerr, div.hsmpdjerr div, div.hsmpdjerr span, div.hsmpdjerr applet, div.hsmpdjerr object, div.hsmpdjerr iframe, div.hsmpdjerr h1, div.hsmpdjerr h2, div.hsmpdjerr h3, div.hsmpdjerr h4, div.hsmpdjerr h5, div.hsmpdjerr h6, div.hsmpdjerr p, div.hsmpdjerr blockquote, div.hsmpdjerr pre, div.hsmpdjerr a, div.hsmpdjerr abbr, div.hsmpdjerr acronym, div.hsmpdjerr address, div.hsmpdjerr big, div.hsmpdjerr cite, div.hsmpdjerr code, div.hsmpdjerr del, div.hsmpdjerr dfn, div.hsmpdjerr em, div.hsmpdjerr font, div.hsmpdjerr img, div.hsmpdjerr ins, div.hsmpdjerr kbd, div.hsmpdjerr q, div.hsmpdjerr s, div.hsmpdjerr samp, div.hsmpdjerr small, div.hsmpdjerr strike, div.hsmpdjerr strong, div.hsmpdjerr sub, div.hsmpdjerr sup, div.hsmpdjerr tt, div.hsmpdjerr var, div.hsmpdjerr b, div.hsmpdjerr u, div.hsmpdjerr i, div.hsmpdjerr center, div.hsmpdjerr dl, div.hsmpdjerr dt, div.hsmpdjerr dd, div.hsmpdjerr ol, div.hsmpdjerr ul, div.hsmpdjerr li, div.hsmpdjerr fieldset, div.hsmpdjerr form, div.hsmpdjerr label, div.hsmpdjerr legend, div.hsmpdjerr table, div.hsmpdjerr caption, div.hsmpdjerr tbody, div.hsmpdjerr tfoot, div.hsmpdjerr thead, div.hsmpdjerr tr, div.hsmpdjerr th, div.hsmpdjerr td {
+	margin: 0; padding: 0; border: 0; outline: 0; vertical-align: baseline; background: transparent;
+}
+
+div.hsmpdjerr { line-height: 1; }
+div.hsmpdjerr ol, div.hsmpdjerr ul { list-style-type: none; list-style-position: none; list-style-type: none;}
+div.hsmpdjerr blockquote, div.hsmpdjerr q { quotes: none; }
+
+/* remember to define focus styles! */
+div.hsmpdjerr :focus { outline: 0; }
+
+/* remember to highlight inserts somehow! */
+
+
+div.hsmpdjerr ins { text-decoration: none; }
+div.hsmpdjerr del { text-decoration: line-through; }
+
+/* tables still need 'cellspacing="0"' in the markup */
+div.hsmpdjerr table { border-collapse: collapse; border-spacing: 0; }
+
+body.hsdmz > div.page > div.app { width:auto !important; max-width:none !important; min-width:none !important; }
+body.hsdmz > div.page > div.app > div.header { display:none; }

@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import QueryDict
+#from django.http import QueryDict
 from django.core.exceptions import MiddlewareNotUsed
 import base64
 import hashlib
@@ -68,8 +68,8 @@ feel free to contribute to this effort.
         secret = auth.get('secret_key')
         self.log = logger.get_log(__name__)
         if not mock or mock and not secret:
-            self.log.info('MockMiddleware has been turned off for all'
-                    'requests')
+            self.log.info(
+                    'MockMiddleware has been turned off for all requests')
             raise MiddlewareNotUsed
         payload = 'payload'
         digest = hmac.new(secret, payload, hashlib.sha1).digest()
@@ -166,7 +166,7 @@ feel free to contribute to this effort.
 
     def process_response(self, request, response):
         marketplace = request and getattr(request, 'marketplace', None)
-        if marketplace and marketplace.is_mock and response.status_code==200:
+        if marketplace:
             if self.body_re.search(response.content):
                 innards = self.body_re.findall(response.content)[0]
                 head = ''
@@ -181,17 +181,41 @@ feel free to contribute to this effort.
                 innards = self.form_re.sub(r'\1action="/market/%s/canvas/%s\2"' %
                         (marketplace.hub_id,self.slug), innards)
 
-# keeping this kicking around cuz we'll likely uncomment when marketplace fixes
-# how this works
-                #innards = self.anchor_re.sub(r'\1href="/market/%s/canvas/%s\2"' %
-                        #(marketplace.hub_id,self.slug), innards)
+    # keeping this kicking around cuz we'll likely uncomment when marketplace fixes
+    # how this works
+                    #innards = self.anchor_re.sub(r'\1href="/market/%s/canvas/%s\2"' %
+                            #(marketplace.hub_id,self.slug), innards)
 
                 content = self.wrapper
                 content = content.replace('[[HEAD_CONTENTS]]',head)
                 content = content.replace('[[BODY_CONTENTS]]',innards)
                 content = content.replace('[[BOTTOM_BODY_CONTENTS]]',bottom)
                 response.content = content
+            #else:
+##                print vars(response).keys()
+                #head_style_re = re.compile(
+                        #r'<style type="text/css">(.*?)</style>',
+                        #re.DOTALL)
+                #head_script_re = re.compile(
+                        #r'<script type="text/javascript">(.*?)</script>',
+                        #re.DOTALL)
+                #if self.body_re.search(response.content):
+                    #innards = self.body_re.findall(response.content)[0]
+                    #for style in head_style_re.findall(response.content):
+                        #innards = ('<style type="text/css">%s</style>'%style +
+                        #innards)
+                    #for script in head_script_re.findall(response.content):
+                        #innards = ('<script type="text/javascript">%s</script>' % script
+                                #+ innards)                          
+                    #content = self.wrapper
+                    #content = content.replace('[[HEAD_CONTENTS]]','')
+                    #content = content.replace('[[BODY_CONTENTS]]','<div class="asdf">%s</div>'%innards)
+                    #content = content.replace('[[BOTTOM_BODY_CONTENTS]]','')
+                    #response.content = content
+
         return response
+
+
 
 
     def base64_url_encode_for_real(self, decoded_s):

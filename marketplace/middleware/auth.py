@@ -40,11 +40,10 @@ specify there if you wanna turn on authentication!)
     def __init__(self):
         super(AuthMiddleware, self).__init__()
         self.log = logger.get_log(__name__)
-        self.log.error("LSKDJFLKSDJFL????")
         auth = getattr(settings, 'HUBSPOT_MARKETPLACE_AUTH', {})
         self.secret = auth.get('secret_key')
         if not self.secret:
-            logger.warn(self.__class__.DEACTIVATION_NOTICE)
+            self.log.warn(self.__class__.DEACTIVATION_NOTICE)
             raise MiddlewareNotUsed
 
     def process_request(self, request):
