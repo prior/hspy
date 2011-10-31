@@ -3,13 +3,13 @@ from distutils.core import setup
 
 setup(
     name='hspy',
-    version='1.4',
+    version='1.4.1',
     description="Python utilities to aide HubSpot Marketplace development",
     long_description = open('README.md').read(),
     author='Michael Prior',
     author_email='prior@cracklabs.com',
     url='https://github.com/prior/hspy',
-    download_url='https://github.com/prior/hspy/tarball/v1.4',
+    download_url='https://github.com/prior/hspy/tarball/v1.4.1',
     license='LICENSE.txt',
     packages=['marketplace'],
     install_requires=[
