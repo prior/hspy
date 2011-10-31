@@ -21,3 +21,7 @@ div.hsmpdjerr table { border-collapse: collapse; border-spacing: 0; }
 
 body.hsdmz > div.page > div.app { width:auto !important; max-width:none !important; min-width:none !important; }
 body.hsdmz > div.page > div.app > div.header { display:none; }
+
+/* change list-style-type to what dj errors are trying to use -- for some reason they're not
+ * specific enough even though they seem like the should be */
+div.hsmpdjerr div.context ol { list-style-type: decimal;}
