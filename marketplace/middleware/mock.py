@@ -16,7 +16,7 @@ Use this middleware to mock exactly what the HubSpot Marketplace would do with
 your requests/responses locally.  This allows you to test your app locally and
 hit it just as it would be hit in production.  To use, you'll need to:
 
-1) Make sure you've already set up your AuthMiddlware all setup -- see docs for
+1) Make sure you've already got your AuthMiddlware all setup -- see docs for
 that guy if you don't know how.
 
 2) Place this class in your middlewares list in your settings.py BEFORE the
@@ -64,10 +64,11 @@ feel free to contribute to this effort.
     def __init__(self):
         super(MockMiddleware,self).__init__()
         mock = getattr(settings, 'HUBSPOT_MARKETPLACE_MOCK', {})
+        mock_safety = getattr(settings, 'HUBSPOT_MARKETPLACE_MOCK_SAFETY', None)
         auth = getattr(settings, 'HUBSPOT_MARKETPLACE_AUTH', {})
         secret = auth.get('secret_key')
         self.log = logger.get_log(__name__)
-        if not mock or mock and not secret:
+        if not mock or mock and not secret or mock_safety and not os.environ.get(mock_safety):
             self.log.info(
                     'MockMiddleware has been turned off for all requests')
             raise MiddlewareNotUsed
