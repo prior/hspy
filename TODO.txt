@@ -1,0 +1,1 @@
+one of these middlewares (or many) gets very slow with large html payloads--- need to investigate and nail it down
