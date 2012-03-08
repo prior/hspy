@@ -11,7 +11,7 @@
         window.hubspot={splitTimes:{preHead:new Date()}};
       //]]>
     </script>
-    <title>HubSpot | Marketplace | Webnr</title>
+    <title>HubSpot</title>
     <link rel="SHORTCUT ICON" href="//static.hubspot.com/favicon.ico" type="image/x-icon" />
     <script type="text/javascript">
       //<![CDATA[
@@ -27,6 +27,7 @@
         hubspot.splitTimes.postHeadBundles=new Date();
       //]]>
     </script>
+    <link rel="stylesheet" href="//static.hubspot.com/final/css/marketplace/application_extra.css">
     <script type="text/javascript" language="javascript">
       //<![CDATA[
       hns('hubspot', {
@@ -63,17 +64,27 @@
 
   <body class="hsdmz css_feb23new css_gate_hsqa css_navbeta css_socialmedia_feed_edits_26b css_toolkitv2 css_navbeta">
     <div class="page">
-      <!--[if IE 8]>
+        <!--[if IE 8]>
         <style>
-          div#hsnavigation.css_navbeta > div > span:hover > ul.menu { margin-top:3px; }
+            div#hsnavigation.css_navbeta > div > span:hover > ul.menu { margin-top: -5px; }
         </style>
-      <![endif]-->
-      <!--[if lte IE 7]>
+        <![endif]-->
+        
+        <!--[if lte IE 7]>
         <style>
-          div#hsnavigation.css_navbeta > div > span:hover > ul.menu { margin-top:32px; zoom:1; float:none; height:auto; left: 0; top: 11px; }
-          div#hsnavigation.css_navbeta > div > span.last:hover > ul.menu { left:auto; }
+            div#hsnavigation.css_navbeta > div > span:hover > ul.menu {
+                margin-top:32px;
+                zoom:1;
+                float:none;
+                height:auto;
+                left: 0;
+                top: 3px;
+            }
+            div#hsnavigation.css_navbeta > div > span.last:hover > ul.menu {
+                left:auto;
+            }
         </style>
-      <![endif]-->
+        <![endif]-->
 
       <div id="hsnavigation" class="css_navbeta">
         <div class="width-960px">
@@ -206,15 +217,13 @@
       </div>
       <div id="sub-header" class="css_navbeta">
         <div class="width-960px">
-          <a href="http://cracklabs.web4.hubspot.com/Logoff.aspx?redirecturl=http%3A%2F%2Fcracklabs.app4.hubspot.com%2FLogoff.aspx">Logoff</a>
-          <a href="http://app.hubspot.com/globalui/settings?portalId=41827">Settings</a>
-          <a href="http://success.hubspot.com/" target="_blank">Help &amp; Community</a>
-          <a href="http://app.hubspot.com/ui/app/index?portalId=41827">UI</a>
-          <a href="#" class="ni_profile">Profile</a>
-          <a href="#" class="ni_debug">Debug</a>
-
-          <a href="http://cracklabs.app4.hubspot.com/app/global-ui/host/">Host</a>
-          <a href="http://twitter.github.com/bootstrap/">TB</a>
+            <a href="http://cracklabs.web4.hubspot.com/Logoff.aspx?redirecturl=http%3A%2F%2Fcracklabs.app4.hubspot.com%2FLogoff.aspx">Logoff</a>
+            <a href="https://app.hubspot.com/globalui/settings?portalId=999999">Settings</a>
+            <a href="http://help.hubspot.com/" target="_blank">Help Center</a>
+            <a href="https://app.hubspot.com/ui/app/index?portalId=999999">UI</a>
+            <a href="#" class="ni_profile">Profile</a>
+            <a href="#" class="ni_debug">Debug</a>
+            <a href="https://hubspot.app1.hubspot.com/app/global-ui/host/">Host</a>
         </div>
       </div>
       <!--[if lt IE 7]>
@@ -228,28 +237,33 @@
       </div>
       <![endif]-->
       <div class="app">
-        <div class="header">
-          <div class="tertiary"></div>
-            <h1>Marketplace | Webnr</h1>
-            <h2>Making Webinar-ing easier</h2>
+        <div id="app-header">
+          <header class="hs-main">
+            <h1>Marketplace</h1>
+            <small></small>
+          </header>
+          <div id="app-helpurl">
+            <a target="_blank" href="https://app.hubspot.com/webinars/about"> App Help </a>
           </div>
-          <div class="yolk">
-            <div id="remoteContents">
-              [[BODY_CONTENTS]]
-            </div>
-          </div>
-          <div style="clear:both; height:0px; width:0px; visibility:none;">&nbsp;</div>
         </div>
-
-        <div class="footer">
-        <div class="copyright">
-          &copy;2011 HubSpot, Inc.  All Rights Reserved.
+        <div id="remoteContents">
+          [[BODY_CONTENTS]]
         </div>
-        <div class="info">
-          Hub ID:  9999999 
-        </div>
+        <div class="yolk"></div>
+        <div style="clear:both; height:0px; width:0px; visibility:none;">&nbsp;</div>
       </div>
-  <!-- page-load-success : standalone -->
+      <div class="footer">
+        <div>
+          <span class="customer-app-info">
+            <span class="hub-id">Hub ID: 999999</span>
+            <span class="product-family">Product Version: Basic</span>
+          </span>
+
+          <span class="copyright">&copy;2012 HubSpot, Inc.  All Rights Reserved.</span>
+          <a class="privacy-policy" href="http://www.hubspot.com/privacy-policy/">Privacy Policy</a>
+        </div>
+      </div><!-- end footer-->
+    <!-- page-load-success : standalone -->
     </div>
       
     <script type="text/javascript">
