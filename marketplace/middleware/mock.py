@@ -84,6 +84,7 @@ feel free to contribute to this effort.
 
         self.prefix_path_re = re.compile('/market/(\d+)/canvas/%s'%self.slug)
         self.body_re = re.compile(r'<body>(.*?)</body>',re.DOTALL)
+        self.head_re = re.compile(r'<hs:head>(.*?)</hs:head>',re.DOTALL)
         self.link_re = re.compile(r'<hs:link (.*?)/?>')
         self.script_re = re.compile(r'<hs:script(.*?)>(.*?)</hs:script>', re.DOTALL)
         self.title_re = re.compile(r'<hs:title(.*?)>(.*?)</hs:title>')
@@ -173,10 +174,13 @@ feel free to contribute to this effort.
                 head = ''
                 for link in self.link_re.findall(innards):
                     head += "\n<link %s />"%link
+                for head_content in self.head_re.findall(innards):
+                    head += "\n%s" % head_content
                 bottom = ''
                 for match_tuple in self.script_re.findall(innards):
                     bottom += "\n<script%s>%s</script>" % (match_tuple[0], match_tuple[1])
                 innards = self.link_re.sub('',innards)
+                innards = self.head_re.sub('',innards)
                 innards = self.title_re.sub('',innards)
                 innards = self.script_re.sub('',innards)
                 innards = self.form_re.sub(r'\1action="/market/%s/canvas/%s\2"' %
