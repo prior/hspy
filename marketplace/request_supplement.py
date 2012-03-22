@@ -29,6 +29,7 @@ class RequestSupplement(object):
                     val = val.lower()=='true'
                 setattr(self, attr, val)
         for k in self.__class__.EXTRAS:
-            setattr(self,self.__class__.EXTRAS[k],getattr(self,k))
+            if getattr(self,k,None): # they're not all necessarily here (uninstall hook only gives secret and portal_id)
+                setattr(self,self.__class__.EXTRAS[k],getattr(self,k))
 
 

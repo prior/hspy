@@ -21,7 +21,7 @@ Url" into something useful.
 
     def process_response(self, request, response):
         marketplace = request and getattr(request, 'marketplace', None)
-        if marketplace and response.status_code==200:
+        if marketplace and getattr(marketplace,'base_url',None) and response.status_code==200:
             content = response.content.decode('utf-8')
             content = self.anchor_re.sub(r'\1href="%s\2"' % marketplace.base_url[0:-1], content)
             response.content = content.encode('utf-8')
