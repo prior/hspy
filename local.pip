@@ -1,0 +1,9 @@
+-e .
+
+cython>=0,<1
+https://bitbucket.org/denis/gevent/get/82f623ff862a.tar.gz
+ujson>=1.18,<2
+
+nose>=1,<2
+rudolf
+bpython
