@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-VERSION = '1.6.3'
+VERSION = '1.6.4'
 
 setup(
     name='hspy',
@@ -9,6 +9,7 @@ setup(
     author='prior',
     author_email='mprior@hubspot.com',
     packages=find_packages(),
+    include_package_data=True,
     url='https://github.com/HubSpot/hspy',
     download_url='https://github.com/HubSpot/hspy/tarball/v%s'%VERSION,
     license='LICENSE.txt',
