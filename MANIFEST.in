@@ -1,5 +1,5 @@
 include README.rst
 include *.txt
 recursive-include docs *.txt
-recursive-include marketplace *.html
+recursive-include marketplace *
 
